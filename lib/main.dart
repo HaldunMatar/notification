@@ -10,9 +10,13 @@ WidgetsFlutterBinding.ensureInitialized();
 await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
 );
-
+  FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
 }
-
+ Future<void> handleBackgroundMessage (RemoteMessage message)  async {
+    print( 'Title: ${message.notification?.title}');
+    print( 'Body: ${message.notification?.body}');
+    print ( 'Payload: ${message?.data}');
+}
 Future<void> main() async {
 
   await setfirebase();
@@ -62,6 +66,7 @@ final token = await fcm.getToken ();
 
 
  }
+
 
   @override
   void initState() {
