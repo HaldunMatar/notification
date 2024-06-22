@@ -1,3 +1,5 @@
+
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -12,11 +14,24 @@ await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
 );
   FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
+
+FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print('تم استلام رسالة أثناء وجود التطبيق في المقدمة!');
+      print('بيانات الرسالة: ${message.data}');
+
+      if (message.notification != null) {
+        print('الرسالة تحتوي أيضًا على إشعار: ${message.notification}');
+      }
+    });
+
 }
  Future<void> handleBackgroundMessage (RemoteMessage message)  async {
+
     print( 'Title: ${message.notification?.title}');
     print( 'Body: ${message.notification?.body}');
     print ( 'Payload: ${message?.data}');
+
+
 }
 final navigatorkey = GlobalKey<NavigatorState>();
 Future<void> main() async {
@@ -83,7 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
 
-Future initPushNotifications()async 
+Future initPushNotifications(BuildContext context)async 
 {
        print('initPushNotifications 1') ;
       await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions (
@@ -94,16 +109,16 @@ Future initPushNotifications()async
       print('initPushNotifications 3') ;
       FirebaseMessaging.onMessageOpenedApp.listen (handleMessage);
       print('initPushNotifications 4') ;
-      FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
-print('initPushNotifications 5') ;
+      FirebaseMessaging.onBackgroundMessage( handleBackgroundMessage );
+      print('initPushNotifications 5') ;
 }
 
- setMessagingNoti() async {
+ setMessagingNoti(BuildContext context) async {
 final fcm = FirebaseMessaging.instance;
 await fcm.requestPermission();
 final token = await fcm.getToken ();
   print('token :$token');
-initPushNotifications();
+initPushNotifications(context);
 
  }
 
@@ -112,7 +127,15 @@ initPushNotifications();
   void initState() {
     // TODO: implement initState
     super.initState();
-     setMessagingNoti();
+    // setMessagingNoti();
+
+
+  }
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    
+     setMessagingNoti(context);
 
 
   }
