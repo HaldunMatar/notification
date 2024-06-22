@@ -1,6 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:noti6/notification_screen.dart';
 import 'firebase_options.dart';
 
 
@@ -17,6 +18,7 @@ await Firebase.initializeApp(
     print( 'Body: ${message.notification?.body}');
     print ( 'Payload: ${message?.data}');
 }
+final navigatorkey = GlobalKey<NavigatorState>();
 Future<void> main() async {
 
   await setfirebase();
@@ -37,6 +39,11 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
+
+
+        routes: {
+        NotificationScreen.route: (context) => NotificationScreen(),
+      },
     );
   }
 }
@@ -57,13 +64,46 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
+  void handleMessage (RemoteMessage? message){
+     print('handleMessage0') ;
+        if(message == null) {
+          return ;
+        }
+         Navigator.pushNamed(context, NotificationScreen.route);
+        print('handleMessage1') ;
+    // navigatorkey.currentState?.pushNamed(
+    // NotificationScreen.route, arguments: message);
+
+  //     Navigator.of(context).push(
+  //   MaterialPageRoute(
+  //     builder: (context) =>  NotificationScreen(),
+  //   ),
+  // );
+     print('handleMessage2') ;
+  }
+
+
+Future initPushNotifications()async 
+{
+       print('initPushNotifications 1') ;
+      await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions (
+      alert: true, badge: true, sound: true,
+      ) ;
+      print('initPushNotifications 2') ;
+      FirebaseMessaging.instance.getInitialMessage().then(handleMessage);
+      print('initPushNotifications 3') ;
+      FirebaseMessaging.onMessageOpenedApp.listen (handleMessage);
+      print('initPushNotifications 4') ;
+      FirebaseMessaging.onBackgroundMessage(handleBackgroundMessage);
+print('initPushNotifications 5') ;
+}
 
  setMessagingNoti() async {
 final fcm = FirebaseMessaging.instance;
 await fcm.requestPermission();
 final token = await fcm.getToken ();
   print('token :$token');
-
+initPushNotifications();
 
  }
 
